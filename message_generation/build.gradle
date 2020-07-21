@@ -38,6 +38,12 @@ dependencies {
   testCompile 'junit:junit:4.8.2'
 }
 
+jar {
+  manifest {
+    attributes("DynamicImport-Package": "*")
+  }
+}
+
 apply plugin: "application"
 
 //noinspection GroovyUnusedAssignment

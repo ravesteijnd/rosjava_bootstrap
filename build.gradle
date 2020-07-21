@@ -27,6 +27,7 @@ subprojects {
   apply plugin: 'maven-publish'
   apply plugin: "idea"
   apply plugin: "eclipse"
+  apply plugin: "osgi"
 
   sourceCompatibility = 1.6
   targetCompatibility = 1.6
