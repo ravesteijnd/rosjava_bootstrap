@@ -103,7 +103,7 @@ public class MessageDefinitionParser {
         if (line.startsWith("#")) {
           continue;
         }
-        if (line.equals(MessageDefinitionSeperators.defaultSeperator)) {
+        if (line.equals(MessageDefinitionSeparators.defaultSeparator)) {
           break;
         }
         if (line.length() > 0) {
