@@ -112,8 +112,9 @@ public class GenerateInterfaces {
     final String cmd = "rosrun roslib gendeps --cat " + directory.getAbsolutePath() + File.separator + "msg"
             + File.separator + topicType.getName() + ".msg";
     final StringBuilder sb = new StringBuilder();
+    Process p = null;
     try {
-      final Process p = Runtime.getRuntime().exec(cmd);
+      p = Runtime.getRuntime().exec(cmd);
       final BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
       final BufferedReader bre = new BufferedReader(new InputStreamReader(p.getErrorStream()));
       String s;
@@ -125,12 +126,15 @@ public class GenerateInterfaces {
       if (p.exitValue() != 0) {
         throw new RuntimeException(bre.readLine());
       }
-      p.destroy();
       definition = sb.toString();
     } catch (Exception e) {
       System.out.println("ERROR: Cannot generate child definitions for " + topicType.getType()
               + ". Failed to run '" + cmd + "': " + e.getMessage());
       definition = messageDefinitionProviderChain.get(topicType.getType());
+    } finally {
+      if (p != null) {
+        p.destroy();
+      }
     }
     return definition;
   }
