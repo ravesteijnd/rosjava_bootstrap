@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.omg.SendingContext.RunTime;
 import org.ros.exception.RosMessageRuntimeException;
 import org.ros.internal.message.definition.MessageDefinitionProviderChain;
 import org.ros.internal.message.definition.MessageDefinitionTupleParser;
@@ -36,8 +38,10 @@ import org.ros.message.MessageDeclaration;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageIdentifier;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
@@ -96,10 +100,39 @@ public class GenerateInterfaces {
       }
     }
     for (MessageIdentifier topicType : topicTypes) {
-      String definition = messageDefinitionProviderChain.get(topicType.getType());
+      String definition = getDefinition(topicType);
       MessageDeclaration messageDeclaration = new MessageDeclaration(topicType, definition);
       writeInterface(messageDeclaration, outputDirectory, true);
     }
+  }
+
+  private String getDefinition(MessageIdentifier topicType) {
+    String definition;
+    final File directory = topicDefinitionFileProvider.getDirectory(topicType.getPackage());
+    final String cmd = "rosrun roslib gendeps --cat " + directory.getAbsolutePath() + File.separator + "msg"
+            + File.separator + topicType.getName() + ".msg";
+    final StringBuilder sb = new StringBuilder();
+    try {
+      final Process p = Runtime.getRuntime().exec(cmd);
+      final BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      final BufferedReader bre = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+      String s;
+      while ((s = bri.readLine()) != null) {
+        sb.append(s);
+        sb.append("\n");
+      }
+      p.waitFor();
+      if (p.exitValue() != 0) {
+        throw new RuntimeException(bre.readLine());
+      }
+      p.destroy();
+      definition = sb.toString();
+    } catch (Exception e) {
+      System.out.println("ERROR: Cannot generate child definitions for " + topicType.getType()
+              + ". Failed to run '" + cmd + "': " + e.getMessage());
+      definition = messageDefinitionProviderChain.get(topicType.getType());
+    }
+    return definition;
   }
 
   /**

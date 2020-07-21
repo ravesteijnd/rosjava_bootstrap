@@ -92,6 +92,15 @@ public class MessageDefinitionFileProvider implements MessageDefinitionProvider 
     stringFileProvider.addDirectory(directory);
   }
 
+  public File getDirectory(String pkg) {
+    for (File dir : stringFileProvider.getDirectories()) {
+      if (dir.getName().equals(pkg)) {
+        return dir;
+      }
+    }
+    return null;
+  }
+
   @Override
   public Collection<String> getPackages() {
     return messageIdentifiers.keySet();

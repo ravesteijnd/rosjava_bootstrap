@@ -103,6 +103,9 @@ public class MessageDefinitionParser {
         if (line.startsWith("#")) {
           continue;
         }
+        if (line.equals(MessageDefinitionSeperators.defaultSeperator)) {
+          break;
+        }
         if (line.length() > 0) {
           parseField(messageType, line);
         }

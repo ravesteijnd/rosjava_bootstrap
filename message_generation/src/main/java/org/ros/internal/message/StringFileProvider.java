@@ -124,6 +124,10 @@ public class StringFileProvider {
     return strings.get(file);
   }
 
+  public Collection<File> getDirectories() {
+    return directories;
+  }
+
   public boolean has(File file) {
     return strings.containsKey(file);
   }
